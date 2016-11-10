@@ -38,6 +38,4 @@ def cleanData(code,type=[15,30,60,90,120]):
 			return a
 
 a=cleanData('600000')
-print(a.columns)
-print(a.head())
-print(a.tail())			
+print(a.columns)		

@@ -57,32 +57,29 @@ def get_low(code):
 def clean_data(code):
 	i=30
 	j=0
-	try:
-		a=gc.cleanData(code)
-	except:
-		print('{} is wrong'.format(code))	
-	else:	
-		print('{} is running'.format(code))
-		if a is not None:
-			while i<len(a):
-				if (a.iloc[i+7:i+8]['close'].get_values()-a.iloc[i:i+1]['close'].get_values())/a.iloc[i:i+1]['close'].get_values() >0.2:
-					print('code : {} times : {}'.format(code,j))
+	a=gc.cleanData(code)
+	if a is not None:
+		while i<len(a):
+			if (a.iloc[i+7:i+8]['close'].get_values()-a.iloc[i:i+1]['close'].get_values())/a.iloc[i:i+1]['close'].get_values() >0.2:
+				print('code : {} times : {}'.format(code,j))
+				datas=a.iloc[i:i+1]
+				datas['code']=code
+				datas['target']=1
+				datas.to_csv('data.csv',mode='a',header=False)
+				i=i+8
+				j=j+1
+				good=datas.columns
+			else:
+				if np.random.random()>0.3:
 					datas=a.iloc[i:i+1]
 					datas['code']=code
-					datas['target']=1
+					datas['target']=0
 					datas.to_csv('data.csv',mode='a',header=False)
-					i=i+8
-					j=j+1
-					good=datas.columns
-				else:
-					if np.random.random()>0.9:
-						datas=a.iloc[i:i+1]
-						datas['code']=code
-						datas['target']=0
-						datas.to_csv('data.csv',mode='a',header=False)
-					i=i+1				
+				i=i+1				
 
-for code in gd.get_all_code():
+code=gd.get_all_code()
+
+for code in code:
 	clean_data(code)
 
 # print('total:{},try:{},good:{}'.format(total,can_try,test_try))	
@@ -94,7 +91,7 @@ for code in gd.get_all_code():
 # print(good)
 # 	get_low(code)
 
-print(good)	
+# print(good)	
 
 # good=['600234', '600959', '601016', '601021', '603019', '603021', '603028', '603029', '603085', '603117', '603131', '603169', '603223', '603315', '603318', '603338', '603528', '603588', '603598', '603601', '603663', '603678', '603686', '603703', '603779', '603818', '603869', '603959', '000897', '002143', '002195', '002240', '002354', '002520', '002577', '002602', '002681', '002739', '002743', '002746', '002747', '002751', '002752', '002771', '002773', '002777', '002780', '002785', '002796', '002798', '002799', '002800', '002801', '002803', '002805', '002806']
 
