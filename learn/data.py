@@ -41,4 +41,19 @@ def plot(unique,how,name):
 			i=i+1
 		path=r'picture/'+name+'.png'	
 		plt.savefig(path)
+	plt.close()	
+
+def custom(data,name):
+	plt.hist(data,bins=100,range=(data.quantile(q=0.05),data.quantile(q=0.95)))
+	plt.savefig(name)
 	plt.close()		
+
+def diff(good,bad,name):
+	plt.subplot(1,2,1)
+	data=good
+	plt.hist(data,bins=100,range=(data.quantile(q=0.05),data.quantile(q=0.95)))	
+	data=bad
+	plt.subplot(1,2,2)
+	plt.hist(data,bins=100,range=(data.quantile(q=0.05),data.quantile(q=0.95)))
+	plt.savefig(name)
+	plt.close()
