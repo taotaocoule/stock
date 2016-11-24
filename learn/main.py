@@ -2,6 +2,7 @@ import get_clean as gc
 import get_code as gd
 import test as test
 import numpy as np
+import pandas as pd
 
 good=[]
 
@@ -74,14 +75,38 @@ def clean_data(code):
 					datas=a.iloc[i:i+1]
 					datas['code']=code
 					datas['target']=0
+					print(datas.shape)
+					print(datas.columns)
 					datas.to_csv('data.csv',mode='a',header=False)
 				i=i+1				
 
+good=[]
+
+def kdj(data,date,m1,m2):
+	data_use=data[['high','low','open','close']]
+	data['lown'] = pd.rolling_min(data_use['low'], date)
+	data.lown.fillna(value=pd.expanding_min(data_use['low']), inplace=True)
+	data['highn'] = pd.rolling_max(data_use['high'], date)
+	data.highn.fillna(value=pd.expanding_max(data_use['high']), inplace=True)
+	data['rsv']=(data['close'] - data['lown']) / (data['highn'] - data['lown']) * 100
+	data['kdj_k'] = pd.ewma(data['rsv'], m1)
+	data['kdj_d'] = pd.ewma(data['kdj_k'], m2)
+	data['kdj_j'] = 3 * data['kdj_k'] - 2 * data['kdj_d']
+
+def kdj_k_min_10(code):
+	a=gc.cleanData(code)
+	if a is not None:
+		if a.ix[-1:].kdj_k.get_values()<10:
+			good.append(code)
+
+
 code=gd.get_all_code()
 
-for code in code:
-	clean_data(code)
 
+for j in code:
+	kdj_k_min_10(j)
+
+print(good)
 # print('total:{},try:{},good:{}'.format(total,can_try,test_try))	
 
 # if test_try/can_try>0.5:
