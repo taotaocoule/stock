@@ -135,6 +135,8 @@ code=gd.get_all_code()
 def useFive(code):
 	try:
 		a=fiveLine(code)
+	except:
+		print(code)	
 	else:	
 		global can_try
 		global test_try
