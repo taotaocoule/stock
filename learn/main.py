@@ -133,20 +133,16 @@ def calculateFive(a,needCol):
 code=gd.get_all_code()
 
 def useFive(code):
-	try:
-		a=fiveLine(code)
-	except:
-		print(code)	
-	else:	
-		global can_try
-		global test_try
-		if len(a)>30:
-			for i in range(30,a.shape[0]):
-				if calculateFive(a.iloc[i:i+1],needCol):
-					can_try+=1
-					if a.iloc[i+5:i+6]['close'].get_values()>a.iloc[i:i+1]['close'].get_values():
-						test_try+=1
-						good.append((a.iloc[i+5:i+6]['close'].get_values()-a.iloc[i:i+1]['close'].get_values())/a.iloc[i:i+1]['close'].get_values())
+	a=fiveLine(code)
+	global can_try
+	global test_try
+	if a is not None and len(a)>30:
+		for i in range(30,a.shape[0]):
+			if calculateFive(a.iloc[i:i+1],needCol):
+				can_try+=1
+				if a.iloc[i+5:i+6]['close'].get_values()>a.iloc[i:i+1]['close'].get_values():
+					test_try+=1
+					good.append((a.iloc[i+5:i+6]['close'].get_values()-a.iloc[i:i+1]['close'].get_values())/a.iloc[i:i+1]['close'].get_values())
 
 
 # for j in code:
