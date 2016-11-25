@@ -100,13 +100,61 @@ def kdj_k_min_10(code):
 			good.append(code)
 
 
-code=gd.get_all_code()
+def calculateLocation(now,max,min):
+	mean=(max+min)/2
+	return np.sign(now-mean)*(np.sqrt((now-mean)**2)/mean)+1
 
+needCol=['MA_15','MA_30', 'MA_60', 'MA_90', 'MA_120']
+def fiveLine(code):
+	try:
+		a=gc.getData(code)
+	except:
+		print('{} is wrong'.format(code))	
+	else:	
+		print('{} is running'.format(code))
+		if a is not None:
+			a.sort_index(inplace=True)
+			gc.ma(a,'close',[15,30,60,90,120])
+			return a
+
+def calculateFive(a,needCol):
+	std=a[needCol].std(axis=1).get_values()
+	max=a[needCol].max(axis=1).get_values()
+	min=a[needCol].min(axis=1).get_values()
+	val_15=a.MA_15.get_values()
+	val_now=a.close.get_values()
+	loc_15=calculateLocation(a.MA_15,max,min).get_values()
+	loc_now=calculateLocation(a.close,a.MA_15,a.MA_15).get_values()
+	print('{} , {} , {} , {}'.format(val_15,val_now,loc_now,std))
+	if std<0.3 and val_15<max:
+		if loc_now>1.02 and val_now<max:
+			return True			
+
+# code=gd.get_all_code()
+
+def useFive(code):
+	a=fiveLine(code)
+	global can_try
+	global test_try
+	if len(a)>30:
+		for i in range(30,a.shape[0]):
+			if calculateFive(a.iloc[i:i+1],needCol):
+				can_try+=1
+				if a.iloc[i+5:i+6]['close'].get_values()>a.iloc[i:i+1]['close'].get_values():
+					test_try+=1
+					good.append((a.iloc[i+5:i+6]['close'].get_values()-a.iloc[i:i+1]['close'].get_values())/a.iloc[i:i+1]['close'].get_values())
+
+
+# for j in code:
+# 	kdj_k_min_10(j)
 
 for j in code:
-	kdj_k_min_10(j)
+	useFive(j)
+print(can_try)
+print(test_try)
 
 print(good)
+print(np.mean(good))
 # print('total:{},try:{},good:{}'.format(total,can_try,test_try))	
 
 # if test_try/can_try>0.5:

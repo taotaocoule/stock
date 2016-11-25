@@ -105,18 +105,8 @@ del clean['Vol']
 del clean['Day_diff']
 	
 def location(now,max,min):
-	if max==min:
-		if now>max:
-			return 1+(now-max)/max
-		else:
-			return 1-(max-now)/max
-	else:			
-	    if now>max:
-	        return 1+(now-max)/(max-min)
-	    elif now>min:
-	        return 1-(max-now)/(max-min)
-	    else:
-	        return (now-min)/(max-min)
+	mean=(max+min)/2
+	return np.sign(now-mean)*(np.sqrt((now-mean)**2)/mean)+1
 
 needClean=[]
 for i in col:
