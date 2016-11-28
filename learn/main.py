@@ -137,23 +137,42 @@ def useFive(code):
 	global can_try
 	global test_try
 	if a is not None and len(a)>30:
-		for i in range(30,a.shape[0]):
+		for i in range(len(a)-10,len(a)-5):
 			if calculateFive(a.iloc[i:i+1],needCol):
 				can_try+=1
 				if a.iloc[i+5:i+6]['close'].get_values()>a.iloc[i:i+1]['close'].get_values():
 					test_try+=1
 					good.append((a.iloc[i+5:i+6]['close'].get_values()-a.iloc[i:i+1]['close'].get_values())/a.iloc[i:i+1]['close'].get_values())
 
+need=[]
+report=[]
+def getFive(code):
+	a=fiveLine(code)
+	trys=0
+	tests=0
+	tmp=[]
+	if a is not None and len(a)>30:
+		for i in range(30,len(a)):
+			if calculateFive(a.iloc[i:i+1],needCol):
+				trys+=1
+				tmp.append((a.iloc[i+5:i+6]['close'].get_values()-a.iloc[i:i+1]['close'].get_values())/a.iloc[i:i+1]['close'].get_values())
+				good.append((a.iloc[i+5:i+6]['close'].get_values()-a.iloc[i:i+1]['close'].get_values())/a.iloc[i:i+1]['close'].get_values())
+				if a.iloc[i+5:i+6]['close'].get_values()>a.iloc[i:i+1]['close'].get_values():
+					tests+=1
+		if trys==tests:
+			need.append(code)
+			strs='{} is good, rate is : {}'.format(code,np.mean(tmp))
+			report.append(strs)			
 
 # for j in code:
 # 	kdj_k_min_10(j)
 
 for j in code:
-	useFive(j)
-print(can_try)
-print(test_try)
+	getFive(j)
 
-print(good)
+for z in report:
+	print(z)
+print(need)
 print(np.mean(good))
 # print('total:{},try:{},good:{}'.format(total,can_try,test_try))	
 
