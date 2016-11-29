@@ -159,7 +159,7 @@ def getFive(code):
 				good.append((a.iloc[i+5:i+6]['close'].get_values()-a.iloc[i:i+1]['close'].get_values())/a.iloc[i:i+1]['close'].get_values())
 				if a.iloc[i+5:i+6]['close'].get_values()>a.iloc[i:i+1]['close'].get_values():
 					tests+=1
-		if trys==tests:
+		if trys==tests and trys>0:
 			need.append(code)
 			strs='{} is good, rate is : {}'.format(code,np.mean(tmp))
 			report.append(strs)			
@@ -167,15 +167,25 @@ def getFive(code):
 # for j in code:
 # 	kdj_k_min_10(j)
 
-for j in code:
-	getFive(j)
+# for j in code:
+# 	getFive(j)
 
-for z in report:
-	print(z)
-print(need)
-print(np.mean(good))
+# for z in report:
+# 	print(z)
+# print(need)
+# print(np.mean(good))
+
 # print('total:{},try:{},good:{}'.format(total,can_try,test_try))	
 
+def five():
+	right=[]
+	fiveNeed=['600000', '600079', '600091', '600103', '600148', '600153', '600167', '600180', '600213', '600243', '600260', '600272', '600325', '600345', '600358', '600416', '600421', '600513', '600529', '600555', '600598', '600603', '600622', '600647', '600651', '600668', '600681', '600721', '600776', '600787', '600793', '600962', '601007', '601216', '601390', '601872', '000020', '000022', '000045', '000055', '000505', '000511', '000565', '000613', '000633', '000666', '000700', '000705', '000720', '000728', '000790', '000823', '000881', '000892', '000906', '000920', '000929', '000980', '000993', '002012', '002043', '002048', '002052', '002058', '002141', '002161', '002272', '002276', '002277', '002286', '002328', '002347', '002369', '002432', '002433', '002455', '002480', '002495', '002503', '002509', '002524', '002533', '002539', '002597', '002606', '002631', '002650', '002678', '002694']
+	for i in fiveNeed:
+	    a=fiveLine(i)
+	    if a is not None and len(a)>30:
+	        if calculateFive(a.tail(1),needCol):
+	            right.append(i)
+	print(right)
 # if test_try/can_try>0.5:
 # 	x=np.array(diff_list)
 # 	print('this strage max:{},min:{},mean:{},std:{}'.format(x.max(),x.min(),x.mean(),x.std()))
