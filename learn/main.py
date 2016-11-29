@@ -164,8 +164,8 @@ def getFive(code):
 			strs='{} is good, rate is : {}'.format(code,np.mean(tmp))
 			report.append(strs)			
 
-# for j in code:
-# 	kdj_k_min_10(j)
+for j in code:
+	clean_data(j)
 
 # for j in code:
 # 	getFive(j)
