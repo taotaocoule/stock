@@ -158,21 +158,21 @@ def getFive(code):
 				tmp.append((a.iloc[i+5:i+6]['close'].get_values()-a.iloc[i:i+1]['close'].get_values())/a.iloc[i:i+1]['close'].get_values())
 				good.append((a.iloc[i+5:i+6]['close'].get_values()-a.iloc[i:i+1]['close'].get_values())/a.iloc[i:i+1]['close'].get_values())
 				if a.iloc[i+5:i+6]['close'].get_values()>a.iloc[i:i+1]['close'].get_values():
-					tests+=1
-		if trys==tests and trys>0:
+					tests+=1		
+		if trys==tests and trys>2:
 			need.append(code)
-			strs='{} is good, rate is : {}'.format(code,np.mean(tmp))
+			strs='{} is good, rate is : {}, times is {}'.format(code,np.mean(tmp),tests)
 			report.append(strs)			
 
-for j in code:
-	clean_data(j)
-
 # for j in code:
-# 	getFive(j)
+# 	kdj_k_min_10(j)
 
-# for z in report:
-# 	print(z)
-# print(need)
+for j in code:
+	getFive(j)
+
+for z in report:
+	print(z)
+print(need)
 # print(np.mean(good))
 
 # print('total:{},try:{},good:{}'.format(total,can_try,test_try))	
