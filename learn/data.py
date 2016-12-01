@@ -50,6 +50,7 @@ def custom(data,name):
 
 def diff(good,bad,name):
 	plt.subplot(1,2,1)
+	plt.title(name)
 	data=good
 	plt.hist(data,bins=100,range=(data.quantile(q=0.05),data.quantile(q=0.95)))	
 	data=bad

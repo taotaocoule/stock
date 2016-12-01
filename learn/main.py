@@ -167,12 +167,12 @@ def getFive(code):
 # for j in code:
 # 	kdj_k_min_10(j)
 
-for j in code:
-	getFive(j)
+# for j in code:
+# 	getFive(j)
 
-for z in report:
-	print(z)
-print(need)
+# for z in report:
+# 	print(z)
+# print(need)
 # print(np.mean(good))
 
 # print('total:{},try:{},good:{}'.format(total,can_try,test_try))	
