@@ -56,16 +56,17 @@ def gradient(a,l=[5,10,15,30]):
         a['close_gradient'+str(i)]=100*(a.close-tmp)/i
 
 def clean(code):
-    a=getData(code)            
-    if len(a)>10:
-        ma(a)
-        boll(a)
-        isOK(a)
-        a['rsi']=rsi(a)
-        gradient(a)
-        a.dropna(inplace=True)
-        a.to_csv('data.csv',mode='a',header=False)
-        return a
+    a=getData(code) 
+    if a is not None:           
+        if len(a)>10:
+            ma(a)
+            boll(a)
+            isOK(a)
+            a['rsi']=rsi(a)
+            gradient(a)
+            a.dropna(inplace=True)
+            a.to_csv('data.csv',mode='a',header=False)
+            return a
 
 import get_code as gd
 code=gd.get_all_code()
