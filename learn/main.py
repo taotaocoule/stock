@@ -3,6 +3,7 @@ import get_code as gd
 import test as test
 import numpy as np
 import pandas as pd
+import tushare as ts
 
 good=[]
 
@@ -204,3 +205,156 @@ def five(fiveNeed):
 # 		j=j+1
 
 # print('total:{},good:{}'.format(len(good),j))		
+
+def boll(code):
+	try:
+		a=gc.getData(code)
+	except:
+		print('{} is wrong'.format(code))	
+	else:	
+	    if a is not None:
+		    a.sort_index(inplace=True)
+		    a['std20']=pd.rolling_std(a.ma20,20)
+		    a['boll_up']=a.close+2*a.std20
+		    a['boll_down']=a.close-2*a.std20
+		    a['boll_range']=(pd.rolling_max(a.boll_up,20)-pd.rolling_min(a.boll_down,20))/pd.rolling_mean(a.ma20,20)
+		    a['boll_range_p']=a.boll_range.pct_change()
+		    a['boll_range_p20']=a.boll_range.pct_change(periods=20)
+		    return a
+
+def test_boll(data):
+    if data.close.get_values()<data.ma20.get_values():
+        range_to_down=(data.low.get_values()-data.boll_down.get_values())/data.low.get_values()
+        if range_to_down<0.01 and data.boll_range_p20.get_values()<-0.5:
+            if data.boll_range.get_values()<0.035:
+                return True   
+let_try=0
+let_test=0                
+j=[]
+def try_boll(g):
+	global let_test
+	global let_try
+	for i in range(30,len(g)):
+	   if test_boll(g.iloc[i:i+1]):
+	       let_try=let_try+1
+	       result=(g.iloc[i+10:i+11]['close'].get_values()-g.iloc[i:i+1]['close'].get_values())/g.iloc[i:i+1]['close'].get_values()
+	       if result>0:
+	           let_test=let_test+1
+	           j.append(result)   
+
+def rsi(a,date=14):
+	c=pd.rolling_apply(a.price_change,date,lambda x:np.sum(x[x>0]))/date
+	d=(-pd.rolling_apply(a.price_change,date,lambda x:np.sum(x[x<0])))/date
+	rs=c/d
+	rsi=100*(rs/(1+rs))
+	return rsi
+
+def boll(a):
+	a['std20']=pd.rolling_std(a.ma20,20)
+	a['boll_up']=a.close+2*a.std20
+	a['boll_down']=a.close-2*a.std20
+	a['boll_range']=(pd.rolling_max(a.boll_up,20)-pd.rolling_min(a.boll_down,20))/pd.rolling_mean(a.ma20,20)
+	a['boll_range_p']=a.boll_range.pct_change()
+	a['boll_range_p20']=a.boll_range.pct_change(periods=20)
+
+let_safe=0
+def test_rsi(code):
+	global let_test
+	global let_try
+	global let_safe
+	try:
+		a=gc.getData(code)
+	except:
+		print('{} is wrong'.format(code))	
+	else:	
+	    if a is not None:
+		    a.sort_index(inplace=True)
+		    a['rsi']=rsi(a)
+		    a['after_7']=a.shift(-7).close
+		    a['is_ok']=	(a.after_7-a.close)/a.after_7>0.1
+		    a['is_safe']=a.after_7>a.close
+		    tmp=a[a.rsi<20]
+		    let_try=let_try+len(tmp)
+		    let_test=let_test+np.sum(tmp.is_ok)
+		    let_safe=let_safe+np.sum(tmp.is_safe)
+		    if len(tmp)==np.sum(tmp.is_ok):
+		    	good.append({'name':code,'time':len(tmp)})
+		    print(code)
+
+
+def get_all_data():
+	for i in code:
+	    try:
+	        a=ts.get_hist_data(i)
+	    except:    
+	        print('{} is wrong'.format(i))
+	    else:    
+	        if a is not None:
+	            a['code']=str(i)
+	            a.sort_index(inplace=True)
+
+def category(x):
+    if x>3:
+        if x>10:
+            return 2
+        else:
+            return 1
+    else:    
+        return 0
+
+def cal_gradient(a,b,l):
+	return (a-b)/(-l)
+
+def storage(code):
+	try:
+		a=ts.get_hist_data(code)
+	except:
+		print('{} is wrong'.format(code))
+	else:
+		if a is not None:
+			a['code']=str(code)		        	            
+			a.sort_index(inplace=True)
+			boll(a)
+			a['rsi']=rsi(a)
+			kdj(a,9,3,3)
+			a['macd']=pd.ewma(a.close,12)-pd.ewma(a.close,26)
+			a['ma30']=pd.rolling_mean(a.close,30)
+			a['ma60']=pd.rolling_mean(a.close,60)
+			a['ma90']=pd.rolling_mean(a.close,90)
+			a['change30']=pd.rolling_std(np.gradient(a.ma30),30)
+			for t in [5,10,20,30,60,90]:
+				a['max'+str(t)]=pd.rolling_max(a.close,t)
+				a['min'+str(t)]=pd.rolling_min(a.close,t)
+			a['macd_a']=pd.ewma(a.close,12)
+			a['macd_d']=pd.ewma(a.close,26)
+			a['diff5']=100*(a.shift(-5).close-a.close)/a.close
+			a['diff10']=100*(a.shift(-10).close-a.close)/a.close
+			a['diff5_c']=a.diff5.apply(category)
+			a['diff10_c']=a.diff10.apply(category)
+			a.dropna()
+			return a
+
+# 过去15天ma15最大率
+# a['max']=a[['ma5','ma10','ma20']].idxmax(axis=1)
+# def is_this(x,s):
+#     return x==s
+# pd.rolling_sum(a['max']=='ma5',15)	
+# 
+# a['ma15_40']=a.ma15.shift(40)
+# a['rate15']=a.apply(lambda x:np.gradient([x['ma15_40'],x['ma15']])[0],axis=1)		
+
+mas=['ma15','ma30','ma60','ma90','ma120']
+def newFiveLine(code):
+	try:
+		a=ts.get_hist_data(code)
+	except:
+		print('{} is wrong'.format(code))
+	else:
+		if a is not None:
+			a.sort_index(inplace=True)
+			for i in [15,30,60,90,120]:
+				a['ma'+str(i)]=pd.rolling_mean(a.close,i)
+				a['ma'+str(i)+'_40']=a['ma'+str(i)].shift(40)
+				a['rate'+str(i)]=a.apply(lambda x:np.gradient([x['ma'+str(i)+'_40'],x['ma'+str(i)]])[0],axis=1)	
+			a.dropna(inplace=True)
+			a['five']=(a[mas].max(axis=1)-a[mas].min(axis=1))/a[mas].max(axis=1)
