@@ -70,5 +70,7 @@ def clean(code):
 
 import get_code as gd
 code=gd.get_all_code()
-for i in code:
-    clean(i)
+# for i in code:
+#     print(i)
+#     clean(i)
+# print(clean('600000').columns)
