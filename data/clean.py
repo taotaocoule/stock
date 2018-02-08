@@ -1,4 +1,5 @@
 # 获取统一的股票数据格式
+# 传入的data为pandas格式，tushare获取
 import pandas as pd
 
 # 过去一段时间的极差（用来知道当前是暴涨后还是暴跌后）
