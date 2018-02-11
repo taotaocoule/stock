@@ -142,6 +142,30 @@ class Stock(object):
 		}
 		return result
 
+	def predict(self):
+		url = 'http://emweb.securities.eastmoney.com/PC_HSF10/ProfitForecast/ProfitForecastAjax?code={}{}'.format(self.market_,self.code)
+		raw = json.loads(urllib.request.urlopen(url).read())['Result']
+		head = {
+			"sj": "时间",
+			"jg": "机构",
+			"yjy": "预测员",
+			"base":"基期",
+			"value": "基期值",
+			"value1": "下一年",
+			"value2": "两年后",
+			"value3": "三年后",
+			"value4": "四年后",
+			"value5": "五年后",
+			"pj": "评级"
+		}
+		predict = []
+		base = raw['ycmx']['mgsy']['baseYear']
+		for i in raw['ycmx']['mgsy']['data']:
+			i["base"] = base
+			predict.append(i)
+		predict_pd = pd.DataFrame(predict)
+		return predict_pd.rename(columns=head)
+
 # 基金持仓明细:http://datapc.eastmoney.com/soft/zlsj_nonav/detail.aspx?code=600000&stat=0&data=2017-12-31
 	def fund(self):
 		url = 'http://datapc.eastmoney.com/soft/zlsj_nonav/detail.aspx?code={}&stat=0&data=2017-12-31'.format(self.code)
