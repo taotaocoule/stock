@@ -10,7 +10,7 @@ class Stock_Flow(object):
 	def __init__(self):
 		self.arg = 0
 
-# 主力净流入
+# 主力净流入排名情况
 	def stock_flow_main(self):
 		url = r'http://nufm.dfcfw.com/EM_Finance2014NumericApplication/JS.aspx/JS.aspx?type=ct&st=(FFRank)&sr=1&p=1&ps=10000&js=[(x)]&token=894050c76af8597a853f5b408b759f5d&cmd=C._AB&sty=DCFFITAM&rt=50602335'
 		raw = json.loads(urllib.request.urlopen(url).read())
