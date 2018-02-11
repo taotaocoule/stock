@@ -70,3 +70,79 @@ class Stock(object):
 		raw = json.loads(urllib.request.urlopen(url).read())
 		result = raw["hxtc"][0]["ydnr"].split(' ')
 		return result
+
+# 股东信息：http://emweb.securities.eastmoney.com/PC_HSF10/ShareholderResearch/ShareholderResearchAjax?code=sh600000
+	def shareholder(self):
+		url = 'http://emweb.securities.eastmoney.com/PC_HSF10/ShareholderResearch/ShareholderResearchAjax?code={}{}'.format(self.market_,self.code)
+		raw = json.loads(urllib.request.urlopen(url).read())
+		head = {
+			"rq": "日期",
+			"gdrs": "股东人数",
+			"gdrs_jsqbh": "股东人数较上期变动幅度",
+			"rjltg": "人均流通股数",
+			"rjltg_jsqbh": "人均流通股数较上期变动幅度",
+			"cmjzd": "筹码集中度",
+			"gj": "股价",
+			"rjcgje": "人均持股金额",
+			"qsdgdcghj": "前十大股东持股合计",
+			"qsdltgdcghj": "前十大流通股东持股合计",
+			"mc": "名次",
+			"gdmc": "股东名称",
+			"gdxz": "股东性质",
+			"gflx": "股份类型",
+			"cgs": "持股数",
+			"zltgbcgbl": "占总流通股本持股比例",
+			"zj": "增减",
+			"bdbl": "变动比例",
+			"jjdm": "基金代码",
+			"jjmc": "基金名称",
+			"cgsz": "持仓市值",
+			"zzgbb": "占总股本比",
+			"zltb": "占流通比",
+			"zjzb": "占净值比",
+			"jjsj": "解禁时间",
+			"jjsl": "解禁数量",
+			"jjgzzgbbl": "解禁股占总股本比例",
+			"jjgzltgbbl": "解禁股占流通股本比例",
+			"gplx": "股票类型",
+			"bdsj": "变动时间",
+			"zzgbcgbl": "占总股本比例",
+			"cj": "增减",
+			"cjgzygdcgbl": "增减股占原股东持股比例",
+			"bdyy": "变动原因"
+		}
+		# 股东人数
+		gdrs_pd = pd.DataFrame(raw['gdrs'])
+		# 限售解禁
+		xsjj_pd = pd.DataFrame(raw['xsjj'])
+		# 十大股东持股变动
+		sdgdcgbd_pd = pd.DataFrame(raw['sdgdcgbd'])
+		# 流通股东
+		ltgd = []
+		for i in raw['sdltgd']:
+			ltgd.extend(i['sdltgd'])
+		ltgd_pd = pd.DataFrame(ltgd)
+		# 十大股东
+		sdgd = []
+		for i in raw['sdgd']:
+			sdgd.extend(i['sdgd'])
+		sdgd_pd = pd.DataFrame(sdgd)
+		# 基金持股
+		jjcg = []
+		for i in raw['jjcg']:
+			jjcg.extend(i['jjcg'])
+		jjcg_pd = pd.DataFrame(jjcg)
+		result = {
+			"股东人数":gdrs_pd.rename(columns=head),
+			"十大流通股东":ltgd_pd.rename(columns=head),
+			"十大股东":sdgd_pd.rename(columns=head),
+			"十大股东持股变动":sdgdcgbd_pd.rename(columns=head),
+			"基金持股":jjcg_pd.rename(columns=head),
+			"限售解禁":xsjj_pd.rename(columns=head)
+		}
+		return result
+
+# 基金持仓明细:http://datapc.eastmoney.com/soft/zlsj_nonav/detail.aspx?code=600000&stat=0&data=2017-12-31
+	def fund(self):
+		url = 'http://datapc.eastmoney.com/soft/zlsj_nonav/detail.aspx?code={}&stat=0&data=2017-12-31'.format(self.code)
+		return url
