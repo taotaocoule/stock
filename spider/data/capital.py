@@ -12,6 +12,7 @@ class Capital(object):
 	"""docstring for Capital"""
 	def __init__(self):
 		self.title = "资金情况"
+		self.CentralBank = "http://www.pbc.gov.cn/diaochatongjisi/116219/116225/index.html"
 
 # 逆回购情况
 	def repurchase(self):
