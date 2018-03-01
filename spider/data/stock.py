@@ -27,6 +27,7 @@ class Stock(object):
 		raw = json.loads(urllib.request.urlopen(url).read()[1:-1])
 		return raw
 
+# 相关业绩信息
 	def business(self):
 		url = 'http://emweb.securities.eastmoney.com/PC_HSF10/BusinessAnalysis/BusinessAnalysisAjax?code={}{}'.format(self.market_,self.code)
 		raw = json.loads(urllib.request.urlopen(url).read())
@@ -170,3 +171,73 @@ class Stock(object):
 	def fund(self):
 		url = 'http://datapc.eastmoney.com/soft/zlsj_nonav/detail.aspx?code={}&stat=0&data=2017-12-31'.format(self.code)
 		return url
+
+# 同行信息
+# raw data字段信息
+# ['hyzx'行业资讯 , 'czxbj' 成长性比较, 'gzbj'估值比较, 'dbfxbj' 杜邦分析比较,
+#  'scbx' 市场表现 , 'gsgmzsz'公司规模总市值, 'gsgmltsz'公司规模流通市值, 
+#  'gsgmyysr'公司规模营业收入, 'gsgmjlr'公司规模净利润
+#  参考网站：http://emweb.securities.eastmoney.com/IndustryAnalysis/Index?type=web&code=sh600000#hyzx-0
+	def occupation(self):
+		url = 'http://emweb.securities.eastmoney.com/PC_HSF10/IndustryAnalysis/IndustryAnalysisAjax?code={}{}'.format(self.market_,self.code)
+		raw = json.loads(urllib.request.urlopen(url).read())['Result']
+		# 成长性
+		czx = raw['czxbj']['data']
+		# 估值比较
+		gz = raw['gzbj']['data']
+		# 杜邦分析比较
+		db = raw['dbfxbj']['data']
+		# 市场表现
+		sc = raw['scbx']
+		# 市值
+		sz = raw['gsgmltsz']
+		# 收入
+		sr = raw['gsgmyysr']
+		# 利润
+		lr = raw['gsgmjlr']
+		result = {
+			'估值排名':gz[0]['pm'],
+			'增长率排名':czx[0]['pm'],
+			'杜邦排名':db[0]['pm'],
+			'流通市值排名':sz[0]['pm'],
+			'流通市值':sz[0]['ltsz'],
+			'流通市值均值':sz[1]['ltsz'],
+			'流通市值中位数':sz[2]['ltsz'],
+			'市盈率':gz[0]['sylTTM'],
+			'市盈率均值':gz[1]['sylTTM'],
+			'市盈率中位数':gz[2]['sylTTM'],
+			'市销率':gz[0]['sslTTM'],
+			'市销率均值':gz[1]['sslTTM'],
+			'市销率中位数':gz[2]['sslTTM'],
+			'市净率':gz[0]['sjlMRQ'],
+			'市净率均值':gz[1]['sjlMRQ'],
+			'市净率中位数':gz[2]['sjlMRQ'],
+			'基本每股收益增长率':czx[0]['jbmgsyzzlfh'],
+			'基本每股收益增长率均值':czx[1]['jbmgsyzzlfh'],
+			'基本每股收益增长率中位数':czx[2]['jbmgsyzzlfh'],
+			'营业收入':sz[0]['yysr'],
+			'营业收入均值':sz[1]['yysr'],
+			'营业收入中位数':sz[2]['yysr'],
+			'营业收入增长率':czx[0]['yysrzzlfh'],
+			'营业收入增长率均值':czx[1]['yysrzzlfh'],
+			'营业收入增长率中位数':czx[2]['yysrzzlfh'],
+			'ROE':db[0]['roepj'],
+			'ROE均值':db[1]['roepj'],
+			'ROE中位数':db[2]['roepj'],
+			'净利润':sz[0]['jlr'],
+			'净利润均值':sz[1]['jlr'],
+			'净利润中位数':sz[2]['jlr'],
+			'净利率':db[0]['jllpj'],
+			'净利率均值':db[1]['jllpj'],
+			'净利率中位数':db[2]['jllpj'],
+			'净利润增长率':czx[0]['jlrzzlfh'],
+			'净利润增长率均值':czx[1]['jlrzzlfh'],
+			'净利润增长率中位数':czx[2]['jlrzzlfh'],
+			'总资产周转率':db[0]['zzczzlpj'],
+			'总资产周转率均值':db[1]['zzczzlpj'],
+			'总资产周转率中位数':db[2]['zzczzlpj'],
+			'权益乘数':db[0]['qycspj'],
+			'权益乘数均值':db[1]['qycspj'],
+			'权益乘数中位数':db[2]['qycspj'],
+		}
+		return result
