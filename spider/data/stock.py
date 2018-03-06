@@ -22,10 +22,35 @@ class Stock(object):
 		dataForm['股票代码'] = self.code
 		return dataForm
 
+# kdj:http://pdfm2.eastmoney.com/EM_UBG_PDTI_Fast/api/js?id=3000592&TYPE=k&js=(x)&rtntype=5&extend=kdj&isCR=false&check=kte&fsDataTeackd1520300162968=fsDataTeackd1520300162968
+# macd:http://pdfm2.eastmoney.com/EM_UBG_PDTI_Fast/api/js?id=3000592&TYPE=k&js=(x)&rtntype=5&extend=macd&isCR=false&check=kte&fsDataTeacma1520302232005=fsDataTeacma1520302232005
 	def download(self):
 		url = 'http://pdfm.eastmoney.com/EM_UBG_PDTI_Fast/api/js?rtntype=5&token=4f1862fc3b5e77c150a2b985b12db0fd&id={}{}&type=k&authorityType=&_=1517967994707'.format(self.code,self.market)
 		raw = json.loads(urllib.request.urlopen(url).read()[1:-1])
 		return raw
+
+	def download_index(self):
+		index_type = ['rsi','kdj','macd','wr','dmi','bias','obv','cci','roc']
+		data = pd.DataFrame()
+		head = {
+			'rsi':['日期','rsi6','rsi12','rsi24'],
+			'kdj':['日期','kdj_k','kdj_d','kdj_j'],
+			'macd':['日期','diff','dea','macd'],
+			'wr':['日期','wr10','wr6'],
+			'dmi':['日期','pdi','mdi','adx','adxr'],
+			'bias':['日期','bias6','bias12','bias24'],
+			'obv':['日期','obv','maobv'],
+			'cci':['日期','cci'],
+			'roc':['日期','roc','rocma']
+		}
+		for t in index_type:
+			url = 'http://pdfm2.eastmoney.com/EM_UBG_PDTI_Fast/api/js?id={}{}&TYPE=k&js=(x)&rtntype=5&extend={}&isCR=false&check=kte&fsDataTeackd1520300162968=fsDataTeackd1520300162968'.format(self.code,self.market,t)
+			raw = json.loads(urllib.request.urlopen(url).read())['data']
+			if len(data)>0:
+				data = data.merge(pd.DataFrame(list(map(lambda x:x.replace('[','').replace(']','').split(','),raw)),columns=head[t]))
+			else:
+				data = data.append(pd.DataFrame(list(map(lambda x:x.replace('[','').replace(']','').split(','),raw)),columns=head[t]))
+		return data
 
 # 相关业绩信息
 	def business(self):
