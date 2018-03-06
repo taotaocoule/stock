@@ -1,19 +1,30 @@
 # 获取统一的股票数据格式
 # 传入的data为pandas格式，tushare获取
 import pandas as pd
+import sys
+sys.path.append('../')
+
+import spider.data.stock as stock
+import utils.clean as clean
 
 # 过去一段时间的极差（用来知道当前是暴涨后还是暴跌后）
 # 过去一段时间的方差（用来知道过去一段时间的波动性）
 # 过去一段时间的开口（均线开口情况）
 class Stock(object):
 	"""docstring for Stock"""
-	def __init__(self, data):
+	def __init__(self, code):
+		stocks = stock.Stock(code)
+		data = clean.Na(stocks.download_index().merge(stocks.get()))
+		data.dropna(inplace=True)
+		data = data.apply(pd.to_numeric,errors='ignore')
+		data['成交额'] = data['成交额'].apply(clean.volumn)
+		data['振幅'] = data['振幅'].apply(clean.remove_percent)
+		data['日期'] = data['日期'].apply(pd.to_datetime)
+		data['表现'] = 100*(data['收盘价']-data.shift(-30)['收盘价'])/data['收盘价']
 		self.data = data
 
 	def clean(self):
-		cleaned = self.data
-		cleaned = get_type(cleaned)
-		return cleaned
+		return get_type(self.data)
 
 # 找极值
 # 1.选定阈值【变动>20，距离>10】
@@ -66,12 +77,12 @@ def calculate_next(data,start,end):
 			"continue":False
 		}
 
-def get_type(data):
+def get_type(data,column='收盘价'):
 	start=0
 	end=10
 	good_list=[]
 	while end<len(data):
-		a=calculate_next(data.close.values,start,end)
+		a=calculate_next(data[column].values,start,end)
 		if a["continue"]:
 			start=a["argmin"]
 			end=a["argmax"]
@@ -87,7 +98,7 @@ def get_type(data):
 	b=[]
 	s=[]
 	for i in good_list:
-		if data.iloc[i["argmax"]].close>data.iloc[i["argmin"]].close:
+		if data.iloc[i["argmax"]][column]>data.iloc[i["argmin"]][column]:
 			b.append(i["argmax"])
 			s.append(i["argmin"])
 		else:

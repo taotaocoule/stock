@@ -21,7 +21,8 @@ class Stock_Flow(object):
 	def stock_flow_share_index(self):
 		url = r'http://nufm.dfcfw.com/EM_Finance2014NumericApplication/JS.aspx/JS.aspx?type=ct&st=(BalFlowMain)&sr=-1&p=1&ps=10000&js=[(x)]&token=894050c76af8597a853f5b408b759f5d&cmd=C._AB&sty=DCFFITA&rt=50602511'
 		raw = json.loads(urllib.request.urlopen(url).read())
-		head = ['市场','股票代码','股票名','最新价','涨跌幅','主力净流入','主力净占比','超大单净流入','超大单净占比','大单净流入','大单净占比','中单净流入','中单净占比','小单净流入','小单净占比','日期']
+		#  "2,000725,京东方A,5.78,3.40,69702.53,12.32,89270.16,15.78,-19567.64,-3.46,-33980.60,-6.01,-35721.92,-6.31,2018-03-06 14:26:45,0.19"
+		head = ['市场','股票代码','股票名','最新价','涨跌幅','主力净流入','主力净占比','超大单净流入','超大单净占比','大单净流入','大单净占比','中单净流入','中单净占比','小单净流入','小单净占比','日期','涨跌额']
 		return pd.DataFrame(list(map(lambda x:x.split(','),raw)),columns=head)
 
 # 板块资金情况 当日排名
