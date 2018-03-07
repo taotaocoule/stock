@@ -24,7 +24,16 @@ class Stock(object):
 		self.data = data
 
 	def clean(self):
-		return get_type(self.data)
+		if len(self.data)>50:
+			try:
+				data = get_type(self.data)
+			except:
+				print('cannot find B/S')
+				return []
+			else:
+				return data
+		else:
+			return []
 
 # 找极值
 # 1.选定阈值【变动>20，距离>10】
