@@ -20,7 +20,7 @@ class Stock(object):
 		data['成交额'] = data['成交额'].apply(clean.volumn)
 		data['振幅'] = data['振幅'].apply(clean.remove_percent)
 		data['日期'] = data['日期'].apply(pd.to_datetime)
-		data['表现'] = 100*(data['收盘价']-data.shift(-30)['收盘价'])/data['收盘价']
+		data['表现'] = 100*(data.shift(-30)['收盘价']-data['收盘价'])/data['收盘价']
 		self.data = data
 
 	def clean(self):
