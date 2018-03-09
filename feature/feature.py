@@ -27,6 +27,8 @@ class Stock(object):
 		if len(self.data)>50:
 			try:
 				data = get_type(self.data)
+				data['target'] = data.apply(target,axis=1)
+				data = get_BS(data)
 			except:
 				print('cannot find B/S')
 				return []
@@ -34,6 +36,13 @@ class Stock(object):
 				return data
 		else:
 			return []
+
+# 判断是否合适
+def target(x):
+    if x.type == 'g' and x['表现']>0:
+        return 1
+    else:
+        return 0
 
 # 找极值
 # 1.选定阈值【变动>20，距离>10】
@@ -115,4 +124,46 @@ def get_type(data,column='收盘价'):
 			s.append(i["argmax"])
 	data.loc[s,'type']='r'
 	data.loc[b,'type']='g'
+	return data
+
+# 找出一段期间的起点
+# 输入data为pandas
+# 以及start起点，period是多久后的表现
+def find_B(data,start=60,period=30,column='收盘价'):
+	if start<len(data)-period and start>=60:
+		raw = data.iloc[start-60:start+30,:]
+		now = data.iloc[start][column]
+		if raw[column].min() == now and (raw[column].max()-raw[column].min())/raw[column].min() > 0.2 and raw[column].idxmax()>raw[column].idxmin():
+			return {
+				'status':True,
+				'result':{
+					'B':raw[column].idxmin(),
+					'S':raw[column].idxmax(),
+					'period':raw[column].idxmax()-raw[column].idxmin()
+				}
+			}
+		else:
+			return {
+				'status':False
+			}
+	else:
+		return {
+				'status':False
+			}
+
+def get_BS(data,start=60):
+	good_BS = []
+	data['BS'] = 'N'
+	data['period'] = 0
+	while start<len(data)-30:
+		r=find_B(data,start)
+		if r['status']:
+			good_BS.append(r['result'])
+			start=start+30
+		else:
+			start=start+1
+	for i in good_BS:
+		data.loc[i['B'],'BS'] = 'B'
+		data.loc[i['B'],'period'] = i['period']
+		data.loc[i['S'],'BS'] = 'S'
 	return data
