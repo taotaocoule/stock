@@ -24,16 +24,9 @@ class Stock(object):
 		self.data = data
 
 	def clean(self):
-		if len(self.data)>50:
-			try:
-				data = get_type(self.data)
-				data['target'] = data.apply(target,axis=1)
-				data = get_BS(data)
-			except:
-				print('cannot find B/S')
-				return []
-			else:
-				return data
+		if len(self.data)>90:
+			data=get_BS(self.data)
+			return data
 		else:
 			return []
 

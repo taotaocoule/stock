@@ -2,6 +2,7 @@ import spider.data.stock_flow as flow
 import feature.feature as feature
 import multiprocessing
 import math
+import index
 
 flow=flow.Stock_Flow()
 b=[]
@@ -23,6 +24,7 @@ def process(data):
 			raw=a.clean()
 			if len(raw)>0:
 				loc='./database/stock/{}.csv'.format(i)
+				# index.pic(raw)
 				raw.to_csv(loc,encoding='utf_8_sig',index=False)
 			now=now+1
 			print(now)
